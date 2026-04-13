@@ -139,24 +139,35 @@ export function useGPAData() {
   };
 
   const importData = (importedData: any) => {
-  // 1. Check if this is the new Master Backup format
-  if (importedData.academic) {
-    // Set the GPA data state
-    setData(importedData.academic);
-    
-    // If a timetable exists in the backup, save it to localStorage
-    if (importedData.timetable) {
-      localStorage.setItem('gpa-wizard-timetable', JSON.stringify(importedData.timetable));
+  try {
+    // 1. Check if it's the NEW Master Backup format
+    if (importedData && importedData.academic) {
+      setData(importedData.academic);
+      
+      // If timetable exists, save it to local storage
+      if (importedData.timetable) {
+        localStorage.setItem('gpa-wizard-timetable', JSON.stringify(importedData.timetable));
+      }
+      alert("Full Backup Restored: Grades & Timetable updated!");
+    } 
+    // 2. Check if it's the OLD format (Direct GPA data)
+    else if (importedData && (importedData.semesters || importedData.structure)) {
+      setData(importedData);
+      alert("Legacy Backup Restored: Grades updated!");
+    } 
+    else {
+      throw new Error("Invalid format");
     }
-  } else {
-    // 2. Fallback: If it's an old backup, treat the whole thing as GPA data
-    setData(importedData);
+
+    // Refresh to ensure all components see the new localStorage values
+    window.location.reload();
+
+  } catch (error) {
+    console.error("Restore Error:", error);
+    alert("Import Error: Could not parse the backup file. Ensure it's a valid GPA Wizard JSON.");
   }
-
-  // Optional: Force a reload or a toast to show the timetable updated
-  // window.location.reload(); 
 };
-
+  
   return {
     data,
     isLoaded,
