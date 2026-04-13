@@ -1,6 +1,4 @@
-"use client"
-
-import React from 'react';
+constfrom 'react';
 import Link from 'next/link';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { Calendar } from 'lucide-react';
@@ -204,8 +202,19 @@ export default function GPAWizard() {
 
   // --- NATIVE JSON EXPORT ---
   const handleNativeExport = async () => {
-    const fileName = `GPA_Backup_${Date.now()}.json`;
-    const content = JSON.stringify(data, null, 2);
+    const fileName = `GPA_Wizard_Master_${Date.now()}.json`;
+    
+    // Grab the timetable from storage
+    const timetableData = localStorage.getItem('gpa-wizard-timetable');
+
+    // Create a combined backup object
+    const fullBackup = {
+      academic: data, // This is the 'data' from your useGPAData hook
+      timetable: timetableData ? JSON.parse(timetableData) : null,
+      exportDate: new Date().toISOString()
+    };
+
+    const content = JSON.stringify(fullBackup, null, 2);
 
     if (Capacitor.isNativePlatform()) {
       try {
@@ -216,7 +225,7 @@ export default function GPAWizard() {
           encoding: Encoding.UTF8,
           recursive: true
         });
-        alert("Success! Backup saved to Documents.");
+        alert("Success! GPA & Timetable saved to Documents.");
       } catch (e) {
         alert("Failed to save JSON backup.");
       }
