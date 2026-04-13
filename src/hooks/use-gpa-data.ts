@@ -138,9 +138,24 @@ export function useGPAData() {
     }));
   };
 
-  const importData = (importedData: GPAData) => {
+  const importData = (importedData: any) => {
+  // 1. Check if this is the new Master Backup format
+  if (importedData.academic) {
+    // Set the GPA data state
+    setData(importedData.academic);
+    
+    // If a timetable exists in the backup, save it to localStorage
+    if (importedData.timetable) {
+      localStorage.setItem('gpa-wizard-timetable', JSON.stringify(importedData.timetable));
+    }
+  } else {
+    // 2. Fallback: If it's an old backup, treat the whole thing as GPA data
     setData(importedData);
-  };
+  }
+
+  // Optional: Force a reload or a toast to show the timetable updated
+  // window.location.reload(); 
+};
 
   return {
     data,
