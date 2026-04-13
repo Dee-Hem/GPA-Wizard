@@ -58,7 +58,7 @@ export default function TimetablePage() {
         id: Math.floor(Math.random() * 10000),
         schedule: { at: trigger, allowWhileIdle: true },
         sound: 'default', // This is what gives you the 'ping'
-        extra: { courseName }
+        extra: { courseName },
         importance: 5, // 5 = 'Critical' (makes it pop up/peek on Android)
         channelId: 'default'
       }
