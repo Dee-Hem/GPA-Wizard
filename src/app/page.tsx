@@ -1,6 +1,8 @@
 "use client"
 
 import React from 'react';
+import Link from 'next/link';
+import { Calendar as CalendarIcon } from 'lucide-react';
 import { ModeToggle } from '@/components/ModeToggle';
 import { useGPAData } from '@/hooks/use-gpa-data';
 import { SemesterCard } from '@/components/SemesterCard';
@@ -268,6 +270,25 @@ export default function GPAWizard() {
   <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
     <div className="space-y-8">
       <GPASummary data={data} />
+
+      <Link href="/timetable" className="block mb-6">
+  <div className="flex items-center justify-between p-4 rounded-2xl bg-[#1e293b] border border-slate-800 active:scale-[0.98] transition-all">
+    <div className="flex items-center gap-4">
+      <div className="bg-blue-600/20 p-3 rounded-xl">
+        <Calendar className="text-blue-500" size={24} />
+      </div>
+      <div>
+        <h3 className="font-bold text-slate-100">Lecture Timetable</h3>
+        <p className="text-xs text-slate-400">View & track your classes</p>
+      </div>
+    </div>
+    <div className="text-slate-500 pr-2">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m9 18 6-6-6-6"/>
+      </svg>
+    </div>
+  </div>
+</Link>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-6">
