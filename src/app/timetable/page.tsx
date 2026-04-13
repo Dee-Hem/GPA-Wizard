@@ -54,7 +54,7 @@ export default function TimetablePage() {
     notifications: [
       {
         title: "Lecture Incoming! 📚",
-        body: `${courseName} starts in 15 minute  at ${lecture.location}. Don't be late!`,
+        body: `${courseName} starts in 15 minute  at ${newCourse.location}. Don't be late!`,
         id: Math.floor(Math.random() * 10000),
         schedule: { at: trigger, allowWhileIdle: true },
         sound: 'default', // This is what gives you the 'ping'
