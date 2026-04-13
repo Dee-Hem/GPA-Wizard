@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { ModeToggle } from '@/components/ModeToggle';
 import { useGPAData } from '@/hooks/use-gpa-data';
 import { SemesterCard } from '@/components/SemesterCard';
