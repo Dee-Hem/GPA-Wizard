@@ -40,26 +40,25 @@ export default function TimetablePage() {
         alert("Wizard needs notification permission!");
         return;
       }
-
-      const scheduleLectureAlert = async (courseName: string, startTime: string, dayOfWeek: number) => {
-  // 1. Calculate the 'trigger' time (e.g., 10:00 AM minus 15 mins = 09:45 AM)
-  const now = new Date();
+// 1. Added 'location' to the arguments
+const scheduleLectureAlert = async (courseName: string, startTime: string, dayOfWeek: number, location: string) => {
   const trigger = new Date();
   
-  // Logic to set 'trigger' to the next occurrence of that class day/time
-  // then subtract 15 minutes
+  // For testing, this triggers 15 mins ago, 
+  // but for the real logic, you'll calculate the actual class time.
   trigger.setMinutes(trigger.getMinutes() - 15); 
 
   await LocalNotifications.schedule({
     notifications: [
       {
         title: "Lecture Incoming! 📚",
-        body: `${courseName} starts in 15 minute  at ${newCourse.location}. Don't be late!`,
+        // 2. Updated variables to match the arguments
+        body: `${courseName} starts in 15 minutes at ${location}. Don't be late!`,
         id: Math.floor(Math.random() * 10000),
         schedule: { at: trigger, allowWhileIdle: true },
-        sound: 'default', // This is what gives you the 'ping'
+        sound: 'default',
         extra: { courseName },
-        importance: 5, // 5 = 'Critical' (makes it pop up/peek on Android)
+        importance: 5, 
         channelId: 'default'
       }
     ]
