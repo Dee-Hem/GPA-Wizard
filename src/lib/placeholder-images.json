@@ -1,0 +1,10 @@
+{
+  "placeholderImages": [
+    {
+      "id": "logo",
+      "description": "GPA Wizard Logo",
+      "imageUrl": "https://picsum.photos/seed/gpawizard/200/200",
+      "imageHint": "education logo"
+    }
+  ]
+}
