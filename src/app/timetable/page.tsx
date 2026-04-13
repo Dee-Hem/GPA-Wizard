@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, MapPin, Plus, Trash2, Bell } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { App } from '@capacitor/app';
+import { useRouter } from 'next/navigation';
 import { LocalNotifications } from '@capacitor/local-notifications';
 
 interface Course {
@@ -62,6 +64,19 @@ export default function TimetablePage() {
       alert("Sync failed. Ensure plugin is version 5.0.0");
     }
   };
+  
+  const router = useRouter();
+
+  useEffect(() => {
+  const backHandler = App.addListener('backButton', (data) => {
+    // If we are on the timetable, go back to the home dashboard
+    router.push('/'); 
+  });
+
+  return () => {
+    backHandler.then(h => h.remove());
+  };
+}, [router]);
 
   const addCourse = () => {
     if (!newCourse.code || !newCourse.time) return;
