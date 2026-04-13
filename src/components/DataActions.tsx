@@ -38,25 +38,30 @@ export function DataActions({ data, onImport, onExport, onPrint }: DataActionsPr
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      try {
-        const importedData = JSON.parse(event.target?.result as string);
-        if (importedData.semesters && Array.isArray(importedData.semesters)) {
-          onImport(importedData);
-          toast({
-            title: "Data Imported",
-            description: "Your academic data has been successfully restored.",
-          });
-        } else {
-          throw new Error("Invalid format");
-        }
-      } catch (err) {
-        toast({
-          variant: "destructive",
-          title: "Import Error",
-          description: "Could not parse the backup file.",
-        });
-      }
-    };
+  try {
+    const importedData = JSON.parse(event.target?.result as string);
+    
+    // Check for NEW format (Master) OR OLD format (Direct Semesters)
+    const isValidNew = importedData.academic && Array.isArray(importedData.academic.semesters);
+    const isValidOld = importedData.semesters && Array.isArray(importedData.semesters);
+
+    if (isValidNew || isValidOld) {
+      onImport(importedData); // Send it to your flexible importData hook
+      toast({
+        title: "Data Imported",
+        description: "Your wizardry data has been restored.",
+      });
+    } else {
+      throw new Error("Invalid format");
+    }
+  } catch (err) {
+    toast({
+      variant: "destructive",
+      title: "Import Error",
+      description: "Could not parse the backup file.",
+    });
+  }
+};
     reader.readAsText(file);
     e.target.value = ''; 
   };
