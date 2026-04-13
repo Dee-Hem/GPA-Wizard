@@ -41,6 +41,31 @@ export default function TimetablePage() {
         return;
       }
 
+      const scheduleLectureAlert = async (courseName: string, startTime: string, dayOfWeek: number) => {
+  // 1. Calculate the 'trigger' time (e.g., 10:00 AM minus 15 mins = 09:45 AM)
+  const now = new Date();
+  const trigger = new Date();
+  
+  // Logic to set 'trigger' to the next occurrence of that class day/time
+  // then subtract 15 minutes
+  trigger.setMinutes(trigger.getMinutes() - 15); 
+
+  await LocalNotifications.schedule({
+    notifications: [
+      {
+        title: "Lecture Incoming! 📚",
+        body: `${courseName} starts in 15 minute  at ${lecture.location}. Don't be late!`,
+        id: Math.floor(Math.random() * 10000),
+        schedule: { at: trigger, allowWhileIdle: true },
+        sound: 'default', // This is what gives you the 'ping'
+        extra: { courseName }
+        importance: 5, // 5 = 'Critical' (makes it pop up/peek on Android)
+        channelId: 'default'
+      }
+    ]
+  });
+};
+
       const pending = await LocalNotifications.getPending();
       if (pending.notifications.length > 0) {
         await LocalNotifications.cancel({ notifications: pending.notifications });
