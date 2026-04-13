@@ -58,7 +58,6 @@ const scheduleLectureAlert = async (courseName: string, startTime: string, dayOf
         schedule: { at: trigger, allowWhileIdle: true },
         sound: 'default',
         extra: { courseName },
-        importance: 5, 
         channelId: 'default'
       }
     ]
