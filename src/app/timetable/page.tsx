@@ -1,32 +1,81 @@
 "use client";
-import React, { useState } from 'react';
-import { Calendar, Clock, MapPin, Plus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calendar, Clock, MapPin, Plus, Trash2, Bell } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+
+interface Course {
+  id: string;
+  code: string;
+  name: string;
+  time: string;
+  location: string;
+  day: string;
+}
 
 export default function TimetablePage() {
   const [activeDay, setActiveDay] = useState('Monday');
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [showAddForm, setShowAddForm] = useState(false);
+  
+  // Form State
+  const [newCourse, setNewCourse] = useState({ code: '', name: '', time: '', location: '' });
+
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  // Load from LocalStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('gpa-wizard-timetable');
+    if (saved) setCourses(JSON.parse(saved));
+  }, []);
+
+  // Save to LocalStorage whenever courses change
+  useEffect(() => {
+    localStorage.setItem('gpa-wizard-timetable', JSON.stringify(courses));
+  }, [courses]);
+
+  const addCourse = () => {
+    if (!newCourse.code || !newCourse.time) return;
+    const courseToAdd = { ...newCourse, id: Date.now().toString(), day: activeDay };
+    setCourses([...courses, courseToAdd]);
+    setNewCourse({ code: '', name: '', time: '', location: '' });
+    setShowAddForm(false);
+  };
+
+  const deleteCourse = (id: string) => {
+    setCourses(courses.filter(c => c.id !== id));
+  };
+
+  const filteredCourses = courses
+    .filter(c => c.day === activeDay)
+    .sort((a, b) => a.time.localeCompare(b.time));
 
   return (
-    <div className="p-4 pb-20 max-w-2xl mx-auto space-y-6">
+    <div className="p-4 pb-24 max-w-2xl mx-auto space-y-6 min-h-screen bg-background">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-black text-foreground">Class Timetable</h1>
-        <button className="bg-primary text-white p-2 rounded-full shadow-lg">
+      <div className="flex justify-between items-center pt-4">
+        <div>
+          <h1 className="text-3xl font-black text-foreground tracking-tight">Timetable</h1>
+          <p className="text-muted-foreground text-sm">Manage your lecture schedule</p>
+        </div>
+        <Button 
+          onClick={() => setShowAddForm(!showAddForm)}
+          className="rounded-full h-12 w-12 p-0 shadow-lg"
+        >
           <Plus className="h-6 w-6" />
-        </button>
+        </Button>
       </div>
 
-      {/* Day Selector (Horizontal Scroll) */}
-      <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+      {/* Day Selector */}
+      <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar border-b border-border/50">
         {days.map((day) => (
           <button
             key={day}
             onClick={() => setActiveDay(day)}
-            className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
+            className={`px-5 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${
               activeDay === day 
-              ? 'bg-primary text-white' 
-              : 'bg-card text-muted-foreground border'
+              ? 'bg-primary text-primary-foreground shadow-md' 
+              : 'bg-card text-muted-foreground border border-border'
             }`}
           >
             {day}
@@ -34,22 +83,79 @@ export default function TimetablePage() {
         ))}
       </div>
 
-      {/* The Timeline List */}
-      <div className="space-y-4">
-        {/* We will map through classes here */}
-        <Card className="border-l-4 border-l-blue-500 bg-card shadow-sm">
-          <CardContent className="p-4 flex gap-4">
-            <div className="text-sm font-bold text-muted-foreground min-w-[60px]">
-              08:00
+      {/* Add Course Form (Conditional) */}
+      {showAddForm && (
+        <Card className="border-2 border-primary/20 bg-card animate-in fade-in slide-in-from-top-4">
+          <CardContent className="p-4 space-y-3">
+            <input 
+              placeholder="Course Code (e.g. CSC 401)" 
+              className="w-full p-3 rounded-lg bg-background border border-border text-sm"
+              value={newCourse.code}
+              onChange={(e) => setNewCourse({...newCourse, code: e.target.value.toUpperCase()})}
+            />
+            <div className="flex gap-2">
+              <input 
+                type="time" 
+                className="flex-1 p-3 rounded-lg bg-background border border-border text-sm"
+                value={newCourse.time}
+                onChange={(e) => setNewCourse({...newCourse, time: e.target.value})}
+              />
+              <input 
+                placeholder="Venue" 
+                className="flex-1 p-3 rounded-lg bg-background border border-border text-sm"
+                value={newCourse.location}
+                onChange={(e) => setNewCourse({...newCourse, location: e.target.value})}
+              />
             </div>
-            <div className="space-y-1">
-              <h3 className="font-black text-foreground">CSC 401</h3>
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                <MapPin className="h-3 w-3" /> Lecture Theater II
-              </p>
-            </div>
+            <Button onClick={addCourse} className="w-full font-bold">Save to {activeDay}</Button>
           </CardContent>
         </Card>
+      )}
+
+      {/* Timeline List */}
+      <div className="space-y-4">
+        {filteredCourses.length > 0 ? (
+          filteredCourses.map((course) => (
+            <Card key={course.id} className="group relative border-none bg-card shadow-sm overflow-hidden dark:bg-slate-900/50">
+              <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-primary" />
+              <CardContent className="p-4 flex items-center justify-between">
+                <div className="flex gap-4 items-center">
+                  <div className="flex flex-col items-center justify-center min-w-[60px] py-1 bg-muted rounded-lg">
+                    <Clock className="h-3 w-3 text-muted-foreground mb-1" />
+                    <span className="text-xs font-black">{course.time}</span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-foreground">{course.code}</h3>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <MapPin className="h-3 w-3" /> {course.location || 'TBA'}
+                    </p>
+                  </div>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => deleteCourse(course.id)}
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <div className="text-center py-12 opacity-50">
+            <Calendar className="h-12 w-12 mx-auto mb-2" />
+            <p className="text-sm">No classes scheduled for {activeDay}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Calendar Sync Nudge (Next Phase) */}
+      <div className="fixed bottom-6 right-6 left-6">
+         <Button className="w-full h-12 shadow-2xl gap-2 rounded-2xl font-black">
+            <Bell className="h-4 w-4" />
+            SYNC WITH DEVICE CALENDAR
+         </Button>
       </div>
     </div>
   );
