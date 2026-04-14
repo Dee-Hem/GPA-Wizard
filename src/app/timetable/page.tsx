@@ -41,6 +41,17 @@ export default function TimetablePage() {
         return;
       }
 
+      // --- ADD NUMBER 2 HERE ---
+      await LocalNotifications.createChannel({
+        id: 'lecture-alarms',
+        name: 'Lecture Reminders',
+        description: 'Critical alerts for classes',
+        importance: 5,
+        visibility: 1, 
+        vibration: true,
+        sound: 'default'
+      });
+
       // 1. Clear old alarms
       const pending = await LocalNotifications.getPending();
       if (pending.notifications.length > 0) {
@@ -49,18 +60,23 @@ export default function TimetablePage() {
 
       // 2. Map courses to notification format
       const notifications = courses.map((course, index) => {
-        // Calculate trigger (For now, 10 seconds for testing)
-        const trigger = new Date(Date.now() + 1000 * (index + 1) * 5); 
-        
-        return {
-          title: `Class: ${course.code}`,
-          body: `Starts at ${course.time} in ${course.location || 'Venue TBA'}`,
-          id: index + 1,
-          schedule: { at: trigger, allowWhileIdle: true },
-          sound: 'default',
-          importance: 5,
-        };
-      });
+  const trigger = new Date(Date.now() + 1000 * 10); // 10s test
+  
+  return {
+    title: `URGENT: ${course.code} Lecture`,
+    body: `Starts at ${course.time} in ${course.location}. Don't be late!`,
+    id: index + 1,
+    schedule: { at: trigger, allowWhileIdle: true },
+    
+    // PERSISTENCE SETTINGS:
+    sound: 'default',
+    importance: 5,         // Makes it "Peek" (drop down) and ring
+    ongoing: true,          // Prevents the user from swiping it away easily
+    autoCancel: false,      // Stays in the tray even after you tap it
+    channelId: 'lecture-alarms',
+    vibration: true
+    };
+  });
 
       if (notifications.length > 0) {
         await LocalNotifications.schedule({ notifications });
