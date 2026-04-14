@@ -83,7 +83,8 @@ const scheduleLectureAlert = async (courseName: string, startTime: string, dayOf
     ]
   });
 };
-
+const handleSyncAlarms = async () => {
+  try { // <--- YOU NEED THIS LINE RIGHT HERE!
       const pending = await LocalNotifications.getPending();
       if (pending.notifications.length > 0) {
         await LocalNotifications.cancel({ notifications: pending.notifications });
