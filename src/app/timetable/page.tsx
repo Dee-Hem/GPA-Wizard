@@ -216,3 +216,4 @@ const handleSyncAlarms = async () => {
     </div>
   );
 }
+    }
