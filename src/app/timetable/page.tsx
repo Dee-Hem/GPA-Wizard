@@ -33,81 +33,47 @@ export default function TimetablePage() {
     localStorage.setItem('gpa-wizard-timetable', JSON.stringify(courses));
   }, [courses]);
 
-  const syncWithNotifications = async () => {
+    const syncWithNotifications = async () => {
     try {
       const perms = await LocalNotifications.requestPermissions();
       if (perms.display !== 'granted') {
         alert("Wizard needs notification permission!");
         return;
       }
-      
-// 1. Added 'location' to the arguments
-const scheduleLectureAlert = async (courseName: string, startTime: string, dayOfWeek: number, location: string) => {
-  const trigger = new Date();
-const scheduleLectureAlert = async (courseName: string, startTime: string, dayOfWeek: number, location: string) => {
-  const trigger = new Date();
-  
-  // 1. Get current Hours and Minutes from your startTime string (e.g., "10:30")
-  const [hours, minutes] = startTime.split(':').map(Number);
-  
-  // 2. Set the trigger time to today at that class time
-  trigger.setHours(hours);
-  trigger.setMinutes(minutes);
-  trigger.setSeconds(0);
 
-  // 3. Subtract 15 minutes to get your reminder time
-  trigger.setMinutes(trigger.getMinutes() - 15);
-
-  // 4. If that time has already passed today, move it to next week 
-  // (Or just don't schedule if you prefer)
-  if (trigger < new Date()) {
-    trigger.setDate(trigger.getDate() + 7);
-  }
-
-  await LocalNotifications.schedule({
-    notifications: [
-      {
-        title: `Class Reminder: ${courseName}`,
-        body: `Starts at ${startTime} in ${location}. Time to move!`,
-        id: Math.floor(Math.random() * 10000),
-        schedule: { 
-          at: trigger, 
-          allowWhileIdle: true,
-          repeats: true, // This makes it a weekly "Alarm"
-          every: 'week'
-        },
-        sound: 'default',
-        importance: 5,
-        channelId: 'default'
-      }
-    ]
-  });
-};
-const handleSyncAlarms = async () => {
-  try { // <--- YOU NEED THIS LINE RIGHT HERE!
+      // 1. Clear old alarms
       const pending = await LocalNotifications.getPending();
       if (pending.notifications.length > 0) {
         await LocalNotifications.cancel({ notifications: pending.notifications });
       }
 
-      const notifications = courses.map((course, index) => ({
-        title: `Class: ${course.code}`,
-        body: `Starts at ${course.time} in ${course.location || 'Venue TBA'}`,
-        id: index + 1,
-        schedule: { at: new Date(Date.now() + 1000 * 10) }, // 10 second test
-        sound: 'default',
-      }));
+      // 2. Map courses to notification format
+      const notifications = courses.map((course, index) => {
+        // Calculate trigger (For now, 10 seconds for testing)
+        const trigger = new Date(Date.now() + 1000 * (index + 1) * 5); 
+        
+        return {
+          title: `Class: ${course.code}`,
+          body: `Starts at ${course.time} in ${course.location || 'Venue TBA'}`,
+          id: index + 1,
+          schedule: { at: trigger, allowWhileIdle: true },
+          sound: 'default',
+          importance: 5,
+        };
+      });
 
       if (notifications.length > 0) {
         await LocalNotifications.schedule({ notifications });
-        alert("Alerts set! Testing in 10 seconds...");
+        alert("Alerts set! Testing sequence started...");
       } else {
         alert("Add some classes first!");
       }
     } catch (err) {
-      alert("Sync failed. Ensure plugin is version 5.0.0");
+      alert("Sync failed. Check console for details.");
+      console.error(err);
     }
   };
+
   
   const router = useRouter();
 
@@ -216,4 +182,3 @@ const handleSyncAlarms = async () => {
     </div>
   );
 }
-    }
