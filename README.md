@@ -10,8 +10,8 @@
 * UI: A premium user interface focusing on bold typography and fluid UI transitions.
 
 ​🛠 Tech Stack
-​Frontend: Next.js 14, React, Tailwind CSS
-​Mobile Bridge: Capacitor JS
-​Notifications: @capacitor/local-notifications
-​Icons: Lucide React
-​Persistence: LocalStorage API
+* ​Frontend: Next.js 14, React, Tailwind CSS
+​* Mobile Bridge: Capacitor JS
+* ​Notifications: @capacitor/local-notifications
+​* Icons: Lucide React
+* ​Persistence: LocalStorage API
