@@ -40,24 +40,44 @@ export default function TimetablePage() {
         alert("Wizard needs notification permission!");
         return;
       }
+      
 // 1. Added 'location' to the arguments
 const scheduleLectureAlert = async (courseName: string, startTime: string, dayOfWeek: number, location: string) => {
   const trigger = new Date();
+const scheduleLectureAlert = async (courseName: string, startTime: string, dayOfWeek: number, location: string) => {
+  const trigger = new Date();
   
-  // For testing, this triggers 15 mins ago, 
-  // but for the real logic, you'll calculate the actual class time.
-  trigger.setMinutes(trigger.getMinutes() - 15); 
+  // 1. Get current Hours and Minutes from your startTime string (e.g., "10:30")
+  const [hours, minutes] = startTime.split(':').map(Number);
+  
+  // 2. Set the trigger time to today at that class time
+  trigger.setHours(hours);
+  trigger.setMinutes(minutes);
+  trigger.setSeconds(0);
+
+  // 3. Subtract 15 minutes to get your reminder time
+  trigger.setMinutes(trigger.getMinutes() - 15);
+
+  // 4. If that time has already passed today, move it to next week 
+  // (Or just don't schedule if you prefer)
+  if (trigger < new Date()) {
+    trigger.setDate(trigger.getDate() + 7);
+  }
 
   await LocalNotifications.schedule({
     notifications: [
       {
-        title: "Lecture Incoming! 📚",
-        // 2. Updated variables to match the arguments
-        body: `${courseName} starts in 15 minutes at ${location}. Don't be late!`,
+        title: `Class Reminder: ${courseName}`,
+        body: `Starts at ${startTime} in ${location}. Time to move!`,
         id: Math.floor(Math.random() * 10000),
-        schedule: { at: trigger, allowWhileIdle: true },
+        schedule: { 
+          at: trigger, 
+          allowWhileIdle: true,
+          repeats: true, // This makes it a weekly "Alarm"
+          every: 'week'
+        },
         sound: 'default',
-        extra: { courseName },
+        importance: 5,
         channelId: 'default'
       }
     ]
